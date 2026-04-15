@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>PiPlay Galaxy Payment</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+</head>
+
+<body style="background:#020617;color:white;text-align:center;margin-top:100px;">
+
+<h2>🚀 PiPlay Galaxy</h2>
+<button onclick="pay()" style="padding:15px;background:#22c55e;border:none;border-radius:10px;">
+Pay 0.01 π
+</button>
+
+<script>
+window.onload = function () {
+  Pi.init({ version: "2.0", sandbox: true });
+};
+
+async function pay() {
+  try {
+    await Pi.authenticate(['payments']);
+
+    Pi.createPayment(
+      {
+        amount: 0.01,
+        memo: "Test Payment",
+        metadata: { app: "PiPlay Galaxy" }
+      },
+      {
+        onReadyForServerApproval: function(paymentId) {
+          fetch("/api/approve", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({paymentId})
+          });
+        },
+        onReadyForServerCompletion: function(paymentId, txid) {
+          fetch("/api/complete", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({paymentId, txid})
+          });
+          alert("✅ Payment Success");
+        },
+        onCancel: function() {
+          alert("❌ Cancelled");
+        },
+        onError: function(e) {
+          alert("Error: " + e);
+        }
+      }
+    );
+
+  } catch {
+    alert("Auth error");
+  }
+}
+</script>
+
+</body>
+</html>
