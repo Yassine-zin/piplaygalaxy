@@ -15,8 +15,11 @@ Pay 0.01 π
 
 <script>
 window.onload = function () {
-  Pi.init({ version: "2.0", sandbox: true });
-};
+  Pi.init({
+  version: "2.0",
+  sandbox: true,
+  appId: "yassine-je"
+});
 
 async function pay() {
   try {
