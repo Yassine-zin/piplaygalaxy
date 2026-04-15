@@ -9,21 +9,30 @@
 <body style="background:#020617;color:white;text-align:center;margin-top:100px;">
 
 <h2>🚀 PiPlay Galaxy</h2>
+
 <button onclick="pay()" style="padding:15px;background:#22c55e;border:none;border-radius:10px;">
 Pay 0.01 π
 </button>
 
 <script>
 window.onload = function () {
+  if (!window.Pi) {
+    alert("Pi SDK not loaded");
+    return;
+  }
+
   Pi.init({
-  version: "2.0",
-  sandbox: true,
-  appId: "yassine-je"
-});
+    version: "2.0",
+    sandbox: true
+  });
+};
 
 async function pay() {
+  alert("clicked");
+
   try {
     await Pi.authenticate(['payments']);
+    alert("authenticated");
 
     Pi.createPayment(
       {
@@ -33,18 +42,9 @@ async function pay() {
       },
       {
         onReadyForServerApproval: function(paymentId) {
-          fetch("/api/approve", {
-            method: "POST",
-            headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({paymentId})
-          });
+          console.log(paymentId);
         },
         onReadyForServerCompletion: function(paymentId, txid) {
-          fetch("/api/complete", {
-            method: "POST",
-            headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({paymentId, txid})
-          });
           alert("✅ Payment Success");
         },
         onCancel: function() {
@@ -56,8 +56,8 @@ async function pay() {
       }
     );
 
-  } catch {
-    alert("Auth error");
+  } catch (e) {
+    alert("Auth error: " + e);
   }
 }
 </script>
