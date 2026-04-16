@@ -1,9 +1,7 @@
 export default function handler(req, res) {
-  if (req.method === 'POST') {
-    return res.status(200).json({ success: true });
+  if (req.method !== 'POST') {
+    return res.status(405).end();
   }
-  res.status(405).end();
-}
 
   const { paymentId } = req.body;
 
