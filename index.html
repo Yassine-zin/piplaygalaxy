@@ -39,16 +39,16 @@ async function pay() {
         metadata: { app: "PiPlay Galaxy" }
       },
       {
-        onReadyForServerApproval: function(paymentId) {
-          fetch("/api/approve", {
+        onReadyForServerApproval: async function(paymentId) {
+          await fetch("/api/approve", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ paymentId })
           });
         },
 
-        onReadyForServerCompletion: function(paymentId, txid) {
-          fetch("/api/complete", {
+        onReadyForServerCompletion: async function(paymentId, txid) {
+          await fetch("/api/complete", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ paymentId, txid })
