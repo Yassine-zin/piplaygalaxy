@@ -1,73 +1,53 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>PiPlay Galaxy Payment</title>
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-</head>
+<button onclick="login()" style="padding:10px;margin-bottom:20px;">
+Login with Pi
+</button>
 
-<body style="background:#020617;color:white;text-align:center;margin-top:100px;">
-
-<h2>🚀 PiPlay Galaxy</h2>
-<p>Test Payment</p>
-
-<button onclick="pay()" style="padding:15px;background:#22c55e;border:none;border-radius:10px;font-size:16px;">
+<button onclick="pay()" style="padding:15px;background:#22c55e;border:none;border-radius:10px;">
 Pay 0.001 π
 </button>
 
 <script>
 let user = null;
 
-// INIT ONCE
-window.onload = async function () {
-  if (!window.Pi) {
-    alert("❌ Pi SDK not loaded");
-    return;
-  }
-
+window.onload = function () {
   Pi.init({ version: "2.0", sandbox: true });
-
-  try {
-    user = await Pi.authenticate(['payments']);
-  } catch (e) {
-    console.log("Auth skipped or failed", e);
-  }
 };
 
-async function pay() {
+async function login() {
+  try {
+    user = await Pi.authenticate(['payments']);
+    alert("✅ Logged in: " + user.user.username);
+  } catch (e) {
+    alert("Login failed");
+  }
+}
+
+function pay() {
   if (!user) {
-    alert("Login required first");
+    alert("❌ خاصك تدير Login الأول");
     return;
   }
 
   Pi.createPayment(
     {
       amount: 0.001,
-      memo: "Test Payment PiPlay Galaxy",
-      metadata: { app: "PiPlay Galaxy" }
+      memo: "GameSpace Galaxy Test Payment",
+      metadata: { app: "GameSpace Galaxy" }
     },
     {
       onReadyForServerApproval: function(paymentId) {
-        // ⚠️ TEMP FIX (avoid 404 crash)
         console.log("Approve:", paymentId);
       },
-
       onReadyForServerCompletion: function(paymentId, txid) {
-        console.log("Complete:", paymentId, txid);
         alert("🎉 Payment Success");
       },
-
       onCancel: function() {
         alert("❌ Cancelled");
       },
-
       onError: function(e) {
-        alert("❌ Error: " + e);
+        alert("Error: " + e);
       }
     }
   );
 }
 </script>
-
-</body>
-</html>
