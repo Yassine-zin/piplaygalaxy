@@ -12,7 +12,7 @@
 <p>Test Payment</p>
 
 <button onclick="pay()" style="padding:15px;background:#22c55e;border:none;border-radius:10px;font-size:16px;">
-Pay 0.01 π
+Pay 0.001 π
 </button>
 
 <script>
@@ -29,11 +29,8 @@ window.onload = function () {
 };
 
 async function pay() {
-  alert("🚀 clicked");
-
   try {
     await Pi.authenticate(['payments']);
-    alert("✅ authenticated");
 
     Pi.createPayment(
       {
@@ -43,10 +40,20 @@ async function pay() {
       },
       {
         onReadyForServerApproval: function(paymentId) {
-          console.log("approved:", paymentId);
+          fetch("/api/approve", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paymentId })
+          });
         },
 
         onReadyForServerCompletion: function(paymentId, txid) {
+          fetch("/api/complete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paymentId, txid })
+          });
+
           alert("🎉 Payment Success");
         },
 
