@@ -1,21 +1,32 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).end();
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  let body = req.body;
-
-  if (typeof body === "string") {
-    body = JSON.parse(body);
-  }
-
-  const { paymentId, txid } = body;
+  const { paymentId, txid } = req.body;
 
   if (!paymentId || !txid) {
     return res.status(400).json({ error: "Missing data" });
   }
 
-  return res.status(200).json({
-    completed: true
-  });
+  try {
+    const response = await fetch(
+      `https://api.minepi.com/v2/payments/${paymentId}/complete`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Key ${process.env.PI_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ txid })
+      }
+    );
+
+    const data = await response.json();
+
+    return res.status(200).json(data);
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 }
