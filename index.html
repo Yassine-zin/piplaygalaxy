@@ -1,10 +1,40 @@
-<button onclick="login()" style="padding:10px;margin-bottom:20px;">
-Login with Pi
-</button>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>GameSpace Galaxy</title>
 
-<button onclick="pay()" style="padding:15px;background:#22c55e;border:none;border-radius:10px;">
-Pay 0.001 π
-</button>
+  <!-- Pi SDK -->
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      padding: 30px;
+    }
+
+    button {
+      padding: 12px 18px;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .login { background: #3b82f6; color: white; }
+    .pay { background: #22c55e; color: white; }
+  </style>
+</head>
+
+<body>
+
+<h2>🎮 GameSpace Galaxy</h2>
+
+<button class="login" onclick="login()">Login with Pi</button>
+<br/>
+
+<button class="pay" onclick="pay()">Pay 0.001 π</button>
 
 <script>
 let user = null;
@@ -15,16 +45,18 @@ window.onload = function () {
 
 async function login() {
   try {
-    user = await Pi.authenticate(['payments']);
+    const scopes = ['payments'];
+    user = await Pi.authenticate(scopes);
     alert("✅ Logged in: " + user.user.username);
   } catch (e) {
-    alert("Login failed");
+    console.log(e);
+    alert("❌ Login failed");
   }
 }
 
 function pay() {
   if (!user) {
-    alert("❌ خاصك تدير Login الأول");
+    alert("❌ خاصك Login الأول");
     return;
   }
 
@@ -36,18 +68,29 @@ function pay() {
     },
     {
       onReadyForServerApproval: function(paymentId) {
-        console.log("Approve:", paymentId);
+        fetch("/api/approve", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paymentId })
+        });
       },
+
       onReadyForServerCompletion: function(paymentId, txid) {
-        alert("🎉 Payment Success");
+        fetch("/api/complete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paymentId, txid })
+        });
+
+        alert("🎉 Payment Successful");
       },
-      onCancel: function() {
-        alert("❌ Cancelled");
-      },
-      onError: function(e) {
-        alert("Error: " + e);
-      }
+
+      onCancel: () => alert("Cancelled"),
+      onError: (e) => alert("Error: " + e)
     }
   );
 }
 </script>
+
+</body>
+</html>
