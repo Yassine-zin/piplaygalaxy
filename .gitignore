@@ -1,0 +1,12 @@
+# Secrets
+validation-key.txt
+.env
+
+# Node
+node_modules/
+
+# Logs
+*.log
+
+# System files
+.DS_Store
